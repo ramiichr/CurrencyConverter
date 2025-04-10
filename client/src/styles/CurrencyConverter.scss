@@ -1,0 +1,314 @@
+.converter-container {
+  width: 100%;
+  max-width: 800px;
+  background-color: var(--card-background);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: visible;
+  transition: var(--transition);
+  animation: fadeIn 0.5s ease-out;
+
+  &:hover {
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-5px);
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1.5rem;
+
+  .spin {
+    color: #8b5cf6;
+  }
+
+  p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+  }
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1.5rem;
+  text-align: center;
+
+  .error-icon {
+    color: var(--warning-color);
+    font-size: 2.5rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    max-width: 400px;
+  }
+
+  .retry-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+.mock-data-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--accent-color);
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.converter-form {
+  padding: 2.5rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .input-with-symbol {
+      position: relative;
+
+      .currency-symbol {
+        position: absolute;
+        left: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+
+      input {
+        width: 100%;
+        padding: 1rem 1.25rem 1rem 2.5rem;
+        border: 2px solid var(--border-color);
+        border-radius: var(--border-radius-sm);
+        background-color: var(--input-background);
+        color: var(--text-color);
+        font-size: 1.1rem;
+        font-weight: 500;
+        transition: var(--transition);
+
+        &:focus {
+          outline: none;
+          border-color: #8b5cf6;
+          box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+      }
+    }
+  }
+
+  .swap-button-container {
+    display: flex;
+    justify-content: center;
+    margin: 0.5rem 0;
+
+    .swap-button {
+      background: var(--secondary-gradient);
+      color: white;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+    }
+  }
+
+  .convert-button {
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    padding: 1.25rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+    box-shadow: var(--shadow);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+}
+
+.conversion-result {
+  padding: 2.5rem;
+  background: var(--secondary-gradient);
+  color: white;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  animation: fadeIn 0.5s ease-out;
+
+  .result-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    .result-label {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .result-value {
+      font-size: 3rem;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .result-attribution {
+    text-align: center;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+
+    a {
+      color: white;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      position: relative;
+
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: white;
+        transition: var(--transition);
+      }
+
+      &:hover::after {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.error-message {
+  padding: 1.25rem;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--warning-color);
+  border-radius: var(--border-radius-sm);
+  text-align: center;
+  margin: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@media (max-width: 768px) {
+  .converter-form {
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .conversion-result {
+    padding: 1.5rem;
+
+    .result-text {
+      .result-value {
+        font-size: 2.25rem;
+      }
+    }
+  }
+}
