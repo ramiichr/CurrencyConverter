@@ -13,7 +13,7 @@ app.use(express.json());
 
 // API usage status tracker
 let apiCallsCount = 0;
-const API_LIMIT = 100;
+const API_LIMIT = 100; // Example limit, adjust based on your actual plan
 
 // API request to handle list of currencies
 app.get("/api/currencies", async (req, res) => {
@@ -140,8 +140,8 @@ app.get("/api/convert", async (req, res) => {
 });
 
 // Health check endpoint
-app.get("/", (req, res) => {
-  res.send(`Server running on port ${PORT}`);
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", message: "Server is running" });
 });
 
 app.listen(PORT, () => {

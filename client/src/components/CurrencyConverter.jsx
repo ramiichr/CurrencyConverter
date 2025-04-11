@@ -10,7 +10,8 @@ import {
 import CurrencySelect from "./CurrencySelect";
 import "../styles/CurrencyConverter.scss";
 
-const API_BASE_URL = "http://localhost:5000/api";
+// Update API base URL to use relative paths for Vercel deployment
+const API_BASE_URL = "/api";
 
 const CurrencyConverter = ({ updateApiUsage }) => {
   const [amount, setAmount] = useState(1);
