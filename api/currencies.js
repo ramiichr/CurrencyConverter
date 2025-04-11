@@ -19,13 +19,25 @@ export default async function handler(req, res) {
   try {
     console.log("Fetching currencies from API...");
 
-    // Check for API key
-    const apiKey = process.env.API_KEY;
+    // Check for API key - try multiple ways to access it
+    const apiKey =
+      process.env.API_KEY ||
+      process.env.NEXT_PUBLIC_API_KEY ||
+      req.headers["x-api-key"];
+
+    // For debugging
+    console.log("Environment variables:", {
+      hasApiKey: !!process.env.API_KEY,
+      hasNextPublicApiKey: !!process.env.NEXT_PUBLIC_API_KEY,
+      hasHeaderApiKey: !!req.headers["x-api-key"],
+    });
+
     if (!apiKey) {
-      console.error("API_KEY is not set in environment variables");
+      console.error("API_KEY is not set in environment variables or headers");
       return res.status(500).json({
         error: "API key is not configured",
         details: "Please set the API_KEY environment variable",
+        env: process.env.NODE_ENV,
       });
     }
 

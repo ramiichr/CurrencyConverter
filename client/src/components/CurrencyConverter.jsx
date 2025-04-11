@@ -41,6 +41,7 @@ const CurrencyConverter = ({ updateApiUsage }) => {
     fetchCurrencies();
   }, []);
 
+  // Update the fetchCurrencies function to include the API key in headers if available
   const fetchCurrencies = async () => {
     try {
       setCurrenciesLoading(true);
@@ -48,7 +49,13 @@ const CurrencyConverter = ({ updateApiUsage }) => {
       setUsingMockData(false);
       console.log("Fetching currencies...");
 
-      const response = await fetch(`${API_BASE_URL}/currencies`);
+      // Create headers object with API key if it exists in window
+      const headers = {};
+      if (window.API_KEY) {
+        headers["x-api-key"] = window.API_KEY;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/currencies`, { headers });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -204,7 +211,10 @@ const CurrencyConverter = ({ updateApiUsage }) => {
       }
 
       const response = await fetch(
-        `${API_BASE_URL}/convert?from=${fromCurrency}&to=${toCurrency}&amount=${amount}`
+        `${API_BASE_URL}/convert?from=${fromCurrency}&to=${toCurrency}&amount=${amount}`,
+        {
+          headers: window.API_KEY ? { "x-api-key": window.API_KEY } : {},
+        }
       );
 
       if (!response.ok) {
