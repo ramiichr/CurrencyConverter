@@ -13,11 +13,6 @@ export default defineConfig({
       },
     },
   },
-  build: {
-    outDir: "dist",
-    emptyOutDir: true,
-    sourcemap: false,
-  },
   css: {
     preprocessorOptions: {
       scss: {

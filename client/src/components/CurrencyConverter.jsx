@@ -6,25 +6,11 @@ import {
   RefreshCw,
   ExternalLink,
   AlertCircle,
-  AlertTriangle,
 } from "lucide-react";
 import CurrencySelect from "./CurrencySelect";
 import "../styles/CurrencyConverter.scss";
 
-// Update API base URL to use relative paths for Vercel deployment
-const API_BASE_URL = "/api";
-
-// Mock data for fallback
-const MOCK_CURRENCIES = {
-  USD: { code: "USD", name: "US Dollar", symbol: "$", flag: "US" },
-  EUR: { code: "EUR", name: "Euro", symbol: "€", flag: "EU" },
-  GBP: { code: "GBP", name: "British Pound", symbol: "£", flag: "GB" },
-  JPY: { code: "JPY", name: "Japanese Yen", symbol: "¥", flag: "JP" },
-  CAD: { code: "CAD", name: "Canadian Dollar", symbol: "C$", flag: "CA" },
-  AUD: { code: "AUD", name: "Australian Dollar", symbol: "A$", flag: "AU" },
-  CHF: { code: "CHF", name: "Swiss Franc", symbol: "Fr", flag: "CH" },
-  CNY: { code: "CNY", name: "Chinese Yuan", symbol: "¥", flag: "CN" },
-};
+const API_BASE_URL = "http://localhost:5000/api";
 
 const CurrencyConverter = ({ updateApiUsage }) => {
   const [amount, setAmount] = useState(1);
@@ -35,27 +21,18 @@ const CurrencyConverter = ({ updateApiUsage }) => {
   const [loading, setLoading] = useState(false);
   const [currenciesLoading, setCurrenciesLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [usingMockData, setUsingMockData] = useState(false);
 
   useEffect(() => {
     fetchCurrencies();
   }, []);
 
-  // Update the fetchCurrencies function to include the API key in headers if available
   const fetchCurrencies = async () => {
     try {
       setCurrenciesLoading(true);
       setError(null);
-      setUsingMockData(false);
       console.log("Fetching currencies...");
 
-      // Create headers object with API key if it exists in window
-      const headers = {};
-      if (window.API_KEY) {
-        headers["x-api-key"] = window.API_KEY;
-      }
-
-      const response = await fetch(`${API_BASE_URL}/currencies`, { headers });
+      const response = await fetch(`${API_BASE_URL}/currencies`);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -148,14 +125,8 @@ const CurrencyConverter = ({ updateApiUsage }) => {
     } catch (err) {
       console.error("Currency fetch error:", err);
       setError(err.message || "Failed to fetch currencies");
-
-      // Use mock data as fallback
-      console.log("Using mock currency data as fallback");
-      const mockCurrencyArray = Object.values(MOCK_CURRENCIES);
-      setAllCurrencies(mockCurrencyArray);
-      setFromCurrency("USD");
-      setToCurrency("EUR");
-      setUsingMockData(true);
+      // Set empty currencies array to prevent component from disappearing
+      setAllCurrencies([]);
     } finally {
       setCurrenciesLoading(false);
     }
@@ -177,44 +148,8 @@ const CurrencyConverter = ({ updateApiUsage }) => {
 
       console.log(`Converting ${amount} ${fromCurrency} to ${toCurrency}`);
 
-      // If using mock data, simulate conversion
-      if (usingMockData) {
-        console.log("Using mock conversion data");
-        // Simple mock conversion rates
-        const mockRates = {
-          USD: 1,
-          EUR: 0.85,
-          GBP: 0.75,
-          JPY: 110,
-          CAD: 1.25,
-          AUD: 1.35,
-          CHF: 0.92,
-          CNY: 6.45,
-        };
-
-        // Calculate mock conversion
-        const fromRate = mockRates[fromCurrency] || 1;
-        const toRate = mockRates[toCurrency] || 1;
-        const convertedValue = (amount / fromRate) * toRate;
-
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        setConversionResult({
-          value: convertedValue,
-          from: fromCurrency,
-          to: toCurrency,
-          amount: Number.parseFloat(amount),
-        });
-
-        return;
-      }
-
       const response = await fetch(
-        `${API_BASE_URL}/convert?from=${fromCurrency}&to=${toCurrency}&amount=${amount}`,
-        {
-          headers: window.API_KEY ? { "x-api-key": window.API_KEY } : {},
-        }
+        `${API_BASE_URL}/convert?from=${fromCurrency}&to=${toCurrency}&amount=${amount}`
       );
 
       if (!response.ok) {
@@ -239,36 +174,6 @@ const CurrencyConverter = ({ updateApiUsage }) => {
     } catch (err) {
       setError(err.message || "Failed to convert currency");
       console.error("Conversion error:", err);
-
-      // If API fails, use mock conversion as fallback
-      if (!usingMockData) {
-        console.log("Using mock conversion as fallback");
-        // Simple mock conversion rates
-        const mockRates = {
-          USD: 1,
-          EUR: 0.85,
-          GBP: 0.75,
-          JPY: 110,
-          CAD: 1.25,
-          AUD: 1.35,
-          CHF: 0.92,
-          CNY: 6.45,
-        };
-
-        // Calculate mock conversion
-        const fromRate = mockRates[fromCurrency] || 1;
-        const toRate = mockRates[toCurrency] || 1;
-        const convertedValue = (amount / fromRate) * toRate;
-
-        setConversionResult({
-          value: convertedValue,
-          from: fromCurrency,
-          to: toCurrency,
-          amount: Number.parseFloat(amount),
-        });
-
-        setUsingMockData(true);
-      }
     } finally {
       setLoading(false);
     }
@@ -335,13 +240,6 @@ const CurrencyConverter = ({ updateApiUsage }) => {
         </div>
       ) : (
         <>
-          {usingMockData && (
-            <div className="mock-data-notice">
-              <AlertTriangle size={18} />
-              <span>Using demo data. API connection unavailable.</span>
-            </div>
-          )}
-
           <div className="converter-form">
             <div className="form-group">
               <label>Amount</label>
@@ -417,25 +315,19 @@ const CurrencyConverter = ({ updateApiUsage }) => {
                 </span>
               </div>
               <div className="result-attribution">
-                {usingMockData ? (
-                  <span>Demo Mode - Using Simulated Data</span>
-                ) : (
-                  <>
-                    Powered by
-                    <a
-                      href="https://currencybeacon.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Currencybeacon <ExternalLink size={14} />
-                    </a>
-                  </>
-                )}
+                Powered by
+                <a
+                  href="https://currencybeacon.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Currencybeacon <ExternalLink size={14} />
+                </a>
               </div>
             </div>
           )}
 
-          {error && allCurrencies.length > 0 && !usingMockData && (
+          {error && allCurrencies.length > 0 && (
             <div className="error-message">
               <AlertCircle size={18} />
               {error}
