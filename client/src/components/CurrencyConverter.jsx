@@ -10,8 +10,8 @@ import {
 import CurrencySelect from "./CurrencySelect";
 import "../styles/CurrencyConverter.scss";
 
-const API_BASE_URL =
-  import.meta.env.API_PROD_URL || "http://localhost:5000/api";
+// const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://exchange-flow-server.vercel.app/api";
 
 const CurrencyConverter = ({ updateApiUsage }) => {
   const [amount, setAmount] = useState(1);
