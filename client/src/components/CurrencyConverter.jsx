@@ -139,6 +139,10 @@ const CurrencyConverter = ({ updateApiUsage }) => {
       return;
     }
 
+    if (loading) {
+      return; // Don't allow multiple simultaneous conversions
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -181,8 +185,18 @@ const CurrencyConverter = ({ updateApiUsage }) => {
   };
 
   const handleSwapCurrencies = () => {
+    // Don't swap if already loading
+    if (loading || currenciesLoading) return;
+
+    // Swap the currencies
     setFromCurrency(toCurrency);
     setToCurrency(fromCurrency);
+
+    // After swapping, wait for state to update and then convert
+    // Using setTimeout to ensure the state update has completed
+    setTimeout(() => {
+      handleConvert();
+    }, 50);
   };
 
   const getFromCurrencySymbol = () => {
@@ -255,6 +269,7 @@ const CurrencyConverter = ({ updateApiUsage }) => {
                   min="0.01"
                   step="0.01"
                   placeholder="Enter amount"
+                  onBlur={handleConvert} // Also convert when user finishes entering an amount
                 />
               </div>
             </div>
@@ -265,7 +280,11 @@ const CurrencyConverter = ({ updateApiUsage }) => {
                 currencies={allCurrencies}
                 allCurrencies={allCurrencies}
                 selectedCurrency={fromCurrency}
-                onSelect={setFromCurrency}
+                onSelect={(currency) => {
+                  setFromCurrency(currency);
+                  // Convert automatically when currency changes
+                  setTimeout(handleConvert, 50);
+                }}
                 disabled={loading}
               />
             </div>
@@ -287,7 +306,11 @@ const CurrencyConverter = ({ updateApiUsage }) => {
                 currencies={allCurrencies}
                 allCurrencies={allCurrencies}
                 selectedCurrency={toCurrency}
-                onSelect={setToCurrency}
+                onSelect={(currency) => {
+                  setToCurrency(currency);
+                  // Convert automatically when currency changes
+                  setTimeout(handleConvert, 50);
+                }}
                 disabled={loading}
               />
             </div>

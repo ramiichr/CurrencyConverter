@@ -63,12 +63,12 @@
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-sm);
     box-shadow: var(--shadow-lg);
-    z-index: 100; /* Increased z-index to ensure it appears above other elements */
-    overflow: visible; /* Changed from hidden to visible */
+    z-index: 100;
     animation: fadeIn 0.2s ease-out;
     display: flex;
     flex-direction: column;
-    max-height: 80vh; /* Use viewport height instead of fixed pixels */
+    max-height: 80vh;
+    overflow: hidden; /* Contain everything inside */
 
     &.dropdown-top {
       top: auto;
@@ -79,7 +79,9 @@
       padding: 1rem;
       border-bottom: 1px solid var(--border-color);
       position: relative;
-      flex-shrink: 0; /* Prevent search container from shrinking */
+      flex-shrink: 0;
+      background-color: var(--card-background);
+      z-index: 2; /* Ensure search stays on top */
 
       .back-button {
         position: absolute;
@@ -150,10 +152,14 @@
     }
 
     .options-container {
-      flex: 1; /* Take remaining space */
+      flex: 1;
       overflow-y: auto;
-      max-height: calc(80vh - 70px); /* Subtract search container height */
+      max-height: 300px;
+      overscroll-behavior: contain; /* Prevent scroll chaining */
+      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+      position: relative; /* Create stacking context */
 
+      /* Always show scrollbar to prevent layout shifts */
       &::-webkit-scrollbar {
         width: 8px;
       }
@@ -173,74 +179,41 @@
         gap: 0.75rem;
         padding: 0.75rem 1.25rem;
         cursor: pointer;
-        transition: var(--transition);
+        border-left: 3px solid transparent; /* Pre-allocate space for selected state */
 
+        /* Use background-color instead of background for hover */
         &:hover {
           background-color: var(--input-background);
         }
 
         &.selected {
-          background: linear-gradient(
-            to right,
-            rgba(139, 92, 246, 0.1),
-            transparent
-          );
-          border-left: 3px solid #8b5cf6;
+          background-color: rgba(
+            139,
+            92,
+            246,
+            0.1
+          ); /* Use solid color instead of gradient */
+          border-left-color: #8b5cf6;
           color: #8b5cf6;
         }
 
         .currency-flag {
           font-size: 1.5rem;
-          filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
+          flex-shrink: 0; /* Prevent flag from shrinking */
         }
 
         .currency-code {
           font-weight: 600;
           min-width: 50px;
+          flex-shrink: 0; /* Prevent code from shrinking */
         }
 
         .currency-name {
           color: var(--text-secondary);
           font-size: 0.95rem;
-        }
-      }
-
-      .pagination-controls {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem 1.25rem;
-        border-top: 1px solid var(--border-color);
-        background-color: var(--input-background);
-
-        .pagination-button {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.5rem 0.75rem;
-          border: none;
-          background-color: var(--card-background);
-          color: var(--text-color);
-          border-radius: var(--border-radius-sm);
-          font-size: 0.85rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: var(--transition);
-
-          &:hover:not(.disabled) {
-            background-color: #8b5cf6;
-            color: white;
-          }
-
-          &.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-          }
-        }
-
-        .pagination-info {
-          font-size: 0.85rem;
-          color: var(--text-secondary);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
       }
 
@@ -261,22 +234,29 @@
       position: fixed;
       top: 0;
       left: 0;
+      right: 0;
+      bottom: 0;
       width: 100%;
       height: 100%;
-      max-height: 100vh;
+      max-height: none;
+      margin: 0;
+      padding: 0;
       border-radius: 0;
       z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      transform: translateZ(0); /* Force hardware acceleration */
+      will-change: transform; /* Hint for browser optimization */
 
       &.dropdown-top {
         top: 0;
-        bottom: auto;
+        bottom: 0;
       }
 
       .search-container {
         padding: 1.5rem;
-        padding-left: 3.5rem; /* Make room for back button */
+        padding-left: 3.5rem;
         border-bottom: 1px solid var(--border-color);
-        background-color: var(--card-background);
 
         .back-button {
           left: 1.5rem;
@@ -289,7 +269,7 @@
         }
 
         .search-icon {
-          left: 4.5rem; /* Position after back button */
+          left: 4.5rem;
         }
 
         .clear-search {
@@ -301,6 +281,9 @@
       .options-container {
         flex: 1;
         max-height: none;
+        height: calc(
+          100% - 80px
+        ); /* Use % instead of vh for better stability */
 
         .option {
           padding: 1rem 1.5rem;
@@ -314,15 +297,6 @@
           }
 
           .currency-name {
-            font-size: 1rem;
-          }
-        }
-
-        .pagination-controls {
-          padding: 1rem 1.5rem;
-
-          .pagination-button {
-            padding: 0.75rem 1rem;
             font-size: 1rem;
           }
         }

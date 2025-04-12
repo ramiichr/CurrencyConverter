@@ -73,7 +73,7 @@ function App() {
           <p>
             Built by{" "}
             <a
-              href="https://github.com"
+              href="https://github.com/ramiichr"
               target="_blank"
               rel="noopener noreferrer"
             >

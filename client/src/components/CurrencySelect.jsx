@@ -1,17 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import {
-  ChevronDown,
-  Search,
-  X,
-  ArrowLeft,
-  ChevronRight,
-  ChevronLeft,
-} from "lucide-react";
+import { ChevronDown, Search, X, ArrowLeft } from "lucide-react";
 import "../styles/CurrencySelect.scss";
-
-const CURRENCIES_PER_PAGE = 4;
 
 const CurrencySelect = ({
   currencies = [],
@@ -19,7 +10,6 @@ const CurrencySelect = ({
   selectedCurrency,
   onSelect,
   disabled = false,
-  showAllCurrencies = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,9 +17,9 @@ const CurrencySelect = ({
   const dropdownRef = useRef(null);
   const triggerRef = useRef(null);
   const searchInputRef = useRef(null);
+  const optionsContainerRef = useRef(null);
   const [isMobile, setIsMobile] = useState(false);
   const [filteredCurrencies, setFilteredCurrencies] = useState([]);
-  const [currentPage, setCurrentPage] = useState(0);
 
   // Check if we're on mobile
   useEffect(() => {
@@ -56,11 +46,9 @@ const CurrencySelect = ({
       );
       setFilteredCurrencies(filtered);
     } else {
-      // When not searching, use the provided currencies list (either top 5 or all)
+      // When not searching, use the provided currencies list
       setFilteredCurrencies(currencies);
     }
-    // Reset to first page when search term changes
-    setCurrentPage(0);
   }, [searchTerm, currencies, allCurrencies]);
 
   // Safely find the selected currency data
@@ -118,12 +106,35 @@ const CurrencySelect = ({
     };
   }, [isOpen, isMobile]);
 
+  // Prevent touch events from causing glitches
+  useEffect(() => {
+    const preventTouchMove = (e) => {
+      // Allow scrolling within the options container
+      if (
+        optionsContainerRef.current &&
+        optionsContainerRef.current.contains(e.target)
+      ) {
+        return;
+      }
+      // Prevent touch move on other elements when dropdown is open
+      if (isOpen && isMobile) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener("touchmove", preventTouchMove, {
+      passive: false,
+    });
+    return () => {
+      document.removeEventListener("touchmove", preventTouchMove);
+    };
+  }, [isOpen, isMobile]);
+
   const toggleDropdown = () => {
     if (disabled || currencies.length === 0) return;
     setIsOpen(!isOpen);
     if (!isOpen) {
       setSearchTerm("");
-      setCurrentPage(0);
     }
   };
 
@@ -134,7 +145,6 @@ const CurrencySelect = ({
 
   const clearSearch = () => {
     setSearchTerm("");
-    setCurrentPage(0);
     if (searchInputRef.current) {
       searchInputRef.current.focus();
     }
@@ -158,24 +168,6 @@ const CurrencySelect = ({
     } catch (e) {
       console.error("Error generating flag emoji:", e);
       return "🌐";
-    }
-  };
-
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredCurrencies.length / CURRENCIES_PER_PAGE);
-  const startIndex = currentPage * CURRENCIES_PER_PAGE;
-  const endIndex = startIndex + CURRENCIES_PER_PAGE;
-  const currentPageCurrencies = filteredCurrencies.slice(startIndex, endIndex);
-
-  const goToNextPage = () => {
-    if (currentPage < totalPages - 1) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const goToPrevPage = () => {
-    if (currentPage > 0) {
-      setCurrentPage(currentPage - 1);
     }
   };
 
@@ -208,7 +200,11 @@ const CurrencySelect = ({
         >
           <div className="search-container">
             {isMobile && (
-              <button className="back-button" onClick={closeDropdown}>
+              <button
+                className="back-button"
+                onClick={closeDropdown}
+                aria-label="Close dropdown"
+              >
                 <ArrowLeft size={20} />
               </button>
             )}
@@ -221,57 +217,32 @@ const CurrencySelect = ({
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             {searchTerm && (
-              <button className="clear-search" onClick={clearSearch}>
+              <button
+                className="clear-search"
+                onClick={clearSearch}
+                aria-label="Clear search"
+              >
                 <X size={16} />
               </button>
             )}
           </div>
-          <div className="options-container">
-            {currentPageCurrencies.length > 0 ? (
-              <>
-                {currentPageCurrencies.map((currency) => (
-                  <div
-                    key={currency.code}
-                    className={`option ${
-                      currency.code === selectedCurrency ? "selected" : ""
-                    }`}
-                    onClick={() => handleSelect(currency.code)}
-                  >
-                    <span className="currency-flag">
-                      {getFlagEmoji(currency.flag || currency.code)}
-                    </span>
-                    <span className="currency-code">{currency.code}</span>
-                    <span className="currency-name">- {currency.name}</span>
-                  </div>
-                ))}
-                {totalPages > 1 && (
-                  <div className="pagination-controls">
-                    <button
-                      className={`pagination-button ${
-                        currentPage === 0 ? "disabled" : ""
-                      }`}
-                      onClick={goToPrevPage}
-                      disabled={currentPage === 0}
-                    >
-                      <ChevronLeft size={16} />
-                      Prev
-                    </button>
-                    <span className="pagination-info">
-                      {currentPage + 1} / {totalPages}
-                    </span>
-                    <button
-                      className={`pagination-button ${
-                        currentPage === totalPages - 1 ? "disabled" : ""
-                      }`}
-                      onClick={goToNextPage}
-                      disabled={currentPage === totalPages - 1}
-                    >
-                      Next
-                      <ChevronRight size={16} />
-                    </button>
-                  </div>
-                )}
-              </>
+          <div className="options-container" ref={optionsContainerRef}>
+            {filteredCurrencies.length > 0 ? (
+              filteredCurrencies.map((currency) => (
+                <div
+                  key={currency.code}
+                  className={`option ${
+                    currency.code === selectedCurrency ? "selected" : ""
+                  }`}
+                  onClick={() => handleSelect(currency.code)}
+                >
+                  <span className="currency-flag">
+                    {getFlagEmoji(currency.flag || currency.code)}
+                  </span>
+                  <span className="currency-code">{currency.code}</span>
+                  <span className="currency-name">- {currency.name}</span>
+                </div>
+              ))
             ) : (
               <div className="no-results">No currencies found</div>
             )}
